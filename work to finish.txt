@@ -1,0 +1,7 @@
+- cursor [done]
+- audio for guns [done]
+- music [done]
+- colour scheme for obstacles [done]
+- maybe bullet burst
+- menu [done]
+- camera setup
