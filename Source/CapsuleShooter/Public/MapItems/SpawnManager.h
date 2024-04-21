@@ -32,7 +32,7 @@ public:
 
 	FEnemyDied EnemyDiedDelegate;
 
-	void SpawnEnemyOfPlayer(ATile* Tile);
+	void SpawnEnemyOnPlayer(ATile* Tile);
 
 protected:
 	// Called when the game starts or when spawned

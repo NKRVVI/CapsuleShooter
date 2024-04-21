@@ -22,14 +22,22 @@ AMapGenerator::AMapGenerator()
 
 }
 
+/*
+	creates the entire map and also spawns the player in the center.
+*/
 void AMapGenerator::GenerateMap(int32 Level, float PlayerHealth, const FColourPalette& ColourPalette)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Row name is %s"), *FString::FromInt(Level));
 
+	//Retrieves necessary data from the data table
 	FLevelData* LevelData = LevelInfoTable->FindRow<FLevelData>(FName(FString::FromInt(Level)), TEXT(""));
 	NumOfTiles = LevelData->NumTiles;
 	ObstaclePercent = LevelData->ObstaclePercent;
 
+	/*
+		creating all the tiles and placeing them appropriately.Also storing the values in a TArray<ATile*> and a TMap<FVector2D, ATile*>.
+		the TArray is used to shuffle up the tiles in order to decide which ones become obstacles. The TMap is used to find which Tile is at which coordinates
+	*/
 	World = GetWorld();
 	if (World && TileClass)
 	{
@@ -62,6 +70,8 @@ void AMapGenerator::GenerateMap(int32 Level, float PlayerHealth, const FColourPa
 
 	TileLength = TileMap[0]->GetTileBounds().X * 2;
 
+	//Setting up the camera location
+
 	FVector2D Center = FVector2D(TileLength * NumOfTiles / 2);
 
 	AActor* Camera = UGameplayStatics::GetActorOfClass(this, ACameraActor::StaticClass());
@@ -85,6 +95,7 @@ void AMapGenerator::GenerateMap(int32 Level, float PlayerHealth, const FColourPa
 		TileMap[j] = SwapTile;
 	}
 
+	// maximum number of obstacles allowed on this map
 	int32 NumObstacles = NumOfTiles * NumOfTiles * ObstaclePercent;
 
 	int32 NumFreeTiles = 0;
@@ -99,6 +110,13 @@ void AMapGenerator::GenerateMap(int32 Level, float PlayerHealth, const FColourPa
 		}
 	}
 
+	/*
+		this portion of the code decides which tiles becomes.
+		It goes through the shuffles tarray of tiles. Turns the current tile into an obstacle
+		Then checks whether the newly places obstacle blocks of a tile that is not an obstacle for the other non-obstacle tiles.
+		if it does, then it no longer becomes an obstacle
+		we then go on to the next tile until all tiles are iterated or we have reached the maximum number of tiles allowed (NumObstacles)
+	*/
 	for (int i = 0; i < TileMap.Num(); i++)
 	{
 		if (*TileCoordMap.FindKey(TileMap[i]) == FVector2D(int32(NumOfTiles / 2))) continue;
@@ -139,6 +157,10 @@ void AMapGenerator::GenerateMap(int32 Level, float PlayerHealth, const FColourPa
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("%d, %d"), NumObstacles, ObstaclesPlaced);
+
+	/*
+		Spawning the player on the center along with the gun
+	*/
 
 	if (World)
 	{
@@ -192,7 +214,9 @@ void AMapGenerator::BeginPlay()
 	Cast<ACapsuleShooterGameMode>(UGameplayStatics::GetGameMode(this))->SetMapGenerator(this);
 }
 
-
+/*
+	recursive function that starts from a certain tile and sees how many tiles it can reach from there.
+*/
 int32 AMapGenerator::CheckFloodFillPath(FVector2D StartLocation, const TMap<FVector2D, ATile*>& TileMapRef, TMap<FVector2D, bool>& PathCheckMap)
 {
 	int32 Path = 1;
@@ -220,6 +244,10 @@ int32 AMapGenerator::CheckFloodFillPath(FVector2D StartLocation, const TMap<FVec
 	return Path;
 }
 
+
+/*
+	if player has not moved for a certain amoung to time, enemy will be spawned on the tile nearest to the player
+*/
 void AMapGenerator::CheckIfPlayerStatic()
 {
 	if ((PlayerCurrentPosition - CapsulePlayer->GetActorLocation()).Size() <= TileLength)

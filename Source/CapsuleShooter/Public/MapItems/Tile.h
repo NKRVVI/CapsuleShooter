@@ -61,6 +61,7 @@ public:
 
 	FVector GetTileBounds();
 
+	//sets the obstacle static mesh component to a selected obstacle mesh
 	void BecomeObstacle() { if (ObstacleMesh) Obstacle->SetStaticMesh(ObstacleMesh); bIsObstacle = true; }
 	void UnbecomeObstacle() { Obstacle->SetStaticMesh(nullptr); bIsObstacle = false; }
 	FORCEINLINE bool IsObstacle() { return bIsObstacle; }

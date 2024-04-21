@@ -19,12 +19,18 @@ ATile::ATile()
 
 }
 
+/*
+	when called, tile starts flashing till StopSpawn is called
+*/
 void ATile::StartSpawn()
 {
 	bIsSpawning = true;
 	Flash(true);
 }
 
+/*
+	stops flashing when called, also resets the tile colour to white
+*/
 void ATile::StopSpawn()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Tile stop flashing"));
@@ -33,6 +39,9 @@ void ATile::StopSpawn()
 	FlashAlpha = 0.f;
 }
 
+/*
+	if the tile is an obstacle, sets the obstacle colour
+*/
 void ATile::SetObstacleColour(FLinearColor ObstacleColour)
 {
 	if (!bIsObstacle) return;
@@ -56,6 +65,10 @@ void ATile::BeginPlay()
 	TileDynamicMaterial->SetVectorParameterValue("Color", NormalColour);
 }
 
+/*
+	interpolates between the current colour and the target flash colour (either the normal colour or the flash colour)
+	then, checks whether it is close enough to the target colour, and then switches the target colour. And then calls Flash after deltaseconds
+*/
 void ATile::Flash(bool bIsColourToFlash)
 {
 	if (!bIsSpawning) return;
@@ -107,6 +120,9 @@ void ATile::Tick(float DeltaTime)
 
 }
 
+/*
+	gets dimensions of tile
+*/
 FVector ATile::GetTileBounds()
 {
 	FVector Origin;

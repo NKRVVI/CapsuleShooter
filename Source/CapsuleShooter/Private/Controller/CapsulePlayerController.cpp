@@ -15,6 +15,9 @@ ACapsulePlayerController::ACapsulePlayerController()
 	
 }
 
+/*
+	in Tick, cursor hit location is stored so that the character turns in that direction
+*/
 void ACapsulePlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

@@ -8,7 +8,9 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameMode/CapsuleShooterGameMode.h"
 
-
+/*
+	onpossess is overrode to run the behaviour tree and to blackboard values are initialised
+*/
 void ACapsuleEnemyController::OnPossess(APawn* PossessedPawn)
 {
 	Super::OnPossess(PossessedPawn);

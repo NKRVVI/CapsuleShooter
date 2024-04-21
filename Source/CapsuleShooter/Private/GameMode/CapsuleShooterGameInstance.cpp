@@ -11,7 +11,9 @@
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 
-
+/*
+	starts a new level
+*/
 void UCapsuleShooterGameInstance::StartNewLevel()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Max level is %s"), *FString::FromInt(MaxLevel));
@@ -61,6 +63,9 @@ void UCapsuleShooterGameInstance::Init()
 	ColourPaletteTable->GetAllRows(TEXT(""), ColourPalettes);
 }
 
+/*
+* when a the game is played again, the variables are reset
+*/
 void UCapsuleShooterGameInstance::ResetGame()
 {
 	Level = 1;
@@ -71,6 +76,10 @@ void UCapsuleShooterGameInstance::ResetGame()
 	ColourPaletteTable->GetAllRows(TEXT(""), ColourPalettes);
 }
 
+
+/*
+ reloading a level
+*/
 void UCapsuleShooterGameInstance::ReloadLevel()
 {
 	UGameplayStatics::OpenLevel(this, FName(GetWorld()->GetName()), false);

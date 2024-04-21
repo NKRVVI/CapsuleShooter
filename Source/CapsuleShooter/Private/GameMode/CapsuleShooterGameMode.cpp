@@ -24,6 +24,12 @@ void ACapsuleShooterGameMode::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("Begin Play"));
 }
 
+
+/*
+	the map is generated, and the spawnmanager starts spawning enemies
+	the gamemode also keeps track of enemies spawned and enemies killed which are communicate to by the map manaager
+	and the spawn manager
+*/
 void ACapsuleShooterGameMode::StartLevel(int32 Level, const FColourPalette& ColourPalette)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Game mode is starting level"));
@@ -31,9 +37,6 @@ void ACapsuleShooterGameMode::StartLevel(int32 Level, const FColourPalette& Colo
 	FLevelData* LevelData = LevelInfoTable->FindRow<FLevelData>(FName(FString::FromInt(Level)), TEXT(""));
 	NumEnemiesToBeSpawnedPerWave = LevelData->EnemiesToBeSpawned;
 	bInfiniteSpawn = LevelData->bInfiniteSpawn;
-
-	//MapGenerator = Cast<AMapGenerator>(UGameplayStatics::GetActorOfClass(this, AMapGenerator::StaticClass()));
-	//SpawnManager = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(this, ASpawnManager::StaticClass()));
 
 	if (MapGenerator && SpawnManager)
 	{
@@ -44,7 +47,7 @@ void ACapsuleShooterGameMode::StartLevel(int32 Level, const FColourPalette& Colo
 
 		MapGenerator->SpawnOnPlayerDelegate.AddLambda(
 			[this](ATile* Tile) {
-				SpawnManager->SpawnEnemyOfPlayer(Tile);
+				SpawnManager->SpawnEnemyOnPlayer(Tile);
 			}
 		);
 
@@ -96,6 +99,7 @@ void ACapsuleShooterGameMode::StartLevel(int32 Level, const FColourPalette& Colo
 		);
 		SpawnManager->StartSpawn(Level);
 
+		// Player level header widget
 		ACapsuleShooterHUD* HUD = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<ACapsuleShooterHUD>();
 		HUD->AddLevelHeaderWidgetToViewport();
 		ULevelHeaderWidget* LevelHeaderWidget = HUD->GetLevelHeaderWidget();

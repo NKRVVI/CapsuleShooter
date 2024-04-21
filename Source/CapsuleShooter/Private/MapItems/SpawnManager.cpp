@@ -19,6 +19,9 @@ ASpawnManager::ASpawnManager()
 
 }
 
+/*
+	starts spawning enemies on the map
+*/
 void ASpawnManager::StartSpawn(int32 Level)
 {
 	bStopSpawn = false;
@@ -29,7 +32,10 @@ void ASpawnManager::StartSpawn(int32 Level)
 	StartSpawnTimer();
 }
 
-void ASpawnManager::SpawnEnemyOfPlayer(ATile* Tile)
+/*
+	when this function is called, the next enemy to be spawned is spawned on the tile in the parameter
+*/
+void ASpawnManager::SpawnEnemyOnPlayer(ATile* Tile)
 {
 	bSpawnOnPlayer = true;
 	PlayerTile = Tile;
@@ -45,6 +51,8 @@ void ASpawnManager::BeginPlay()
 	Cast<ACapsuleShooterGameMode>(UGameplayStatics::GetGameMode(this))->SetSpawnManager(this);
 }
 
+
+//Setting the unoccupied tiles so that enemies can be spawned on them
 void ASpawnManager::ReceiveUnoccupiedTiles(TArray<ATile*>& _UnoccupiedTiles)
 {
 	UnoccupiedTiles = _UnoccupiedTiles;
@@ -52,11 +60,15 @@ void ASpawnManager::ReceiveUnoccupiedTiles(TArray<ATile*>& _UnoccupiedTiles)
 
 }
 
+// tile in the parameter starts flashing
 void ASpawnManager::StartTileFlash(ATile* SpawnTile)
 {
 	SpawnTile->StartSpawn();
 }
 
+/*
+	spawns enemy on given tile and stops that tile's flash
+*/
 void ASpawnManager::Spawn(ATile* SpawnTile)
 {
 	if (SpawnTile)
@@ -64,13 +76,9 @@ void ASpawnManager::Spawn(ATile* SpawnTile)
 		SpawnTile->StopSpawn();
 
 		UE_LOG(LogTemp, Warning, TEXT("Spawn started"));
-		//if (bStopSpawn) return;
 
 		if (World)
 		{
-			//
-			//FTransform SpawnTransform = UnoccupiedTiles[RandomTileIndex]->GetActorTransform();
-
 			FTransform SpawnTransform = SpawnTile->GetActorTransform();
 
 			if (AEnemy* Enemy = Cast<AEnemy>(World->SpawnActor<AEnemy>(EnemyClass)))
@@ -87,20 +95,12 @@ void ASpawnManager::Spawn(ATile* SpawnTile)
 			}
 		}
 	}
-
-	/*if (bStopSpawn) return;
-
-	int32 RandomTileIndex = FMath::RandRange(0, UnoccupiedTiles.Num() - 1);
-	ATile* NewSpawnTile = UnoccupiedTiles[RandomTileIndex];
-
-	FTimerDelegate SpawnTimerDelegate = FTimerDelegate::CreateUObject(this, &ThisClass::Spawn, NewSpawnTile);
-	GetWorldTimerManager().SetTimer(SpawnTimer, SpawnTimerDelegate, TimeBetweenSpawn, false);
-
-	FTimerDelegate TileFlashTimerDelegate = FTimerDelegate::CreateUObject(this, &ThisClass::StartTileFlash, NewSpawnTile);
-	//NewSpawnTile->StartSpawn();
-	GetWorldTimerManager().SetTimer(TileFlashTimer, TileFlashTimerDelegate,FMath::Max(0.1, TimeBetweenSpawn - TimeOfFlashBeforeSpawn), false);*/
 }
 
+/*
+	if the player is static for a certain amount of time, then the tile closest to the player is set to spawn, and that tile starts flashing
+	otherwise a random tile is chosen from the unoccupied list to be set to spawn
+*/
 void ASpawnManager::StartSpawnTimer()
 {
 	if (bStopSpawn) return;
@@ -124,9 +124,6 @@ void ASpawnManager::StartSpawnTimer()
 	StartTileFlash(NewSpawnTile);
 	SpawnedEnemyDelegate.Broadcast();
 	GetWorldTimerManager().SetTimer(SetSpawnTimerTimerHandle, this, &ThisClass::StartSpawnTimer, TimeBetweenSpawn);
-
-	//FTimerDelegate TileFlashTimerDelegate = FTimerDelegate::CreateUObject(this, &ThisClass::StartTileFlash, NewSpawnTile);
-	//GetWorldTimerManager().SetTimer(TileFlashTimer, TileFlashTimerDelegate, TimeBetweenSpawn, false);
 }
 
 // Called every frame
